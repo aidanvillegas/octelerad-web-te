@@ -84,7 +84,7 @@ text-expander/
 ## 10. Two-Sprint Backlog
 **Sprint 1 (MVP)**
 - [x] Scaffold monorepo directories (apps/web, services/api, infra, docs, workflows)
-- [ ] Provide Dockerfiles and docker-compose baseline
+- [x] Provide Dockerfiles and docker-compose baseline
 - [ ] Implement models & endpoints (CRUD, restore, export, import, delta sync)
 - [ ] Next.js list/search/create UI
 - [ ] CI/CD pipeline to GHCR + SSH deploy
@@ -97,4 +97,5 @@ text-expander/
 - [ ] Import dry run + conflict report
 - [ ] Audit log UI + CSV export
 - [ ] Metrics dashboard (p95 latency, error rate, import counts, top searches)
+
 

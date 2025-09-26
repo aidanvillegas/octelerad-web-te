@@ -1,3 +1,3 @@
 # Caddy Configuration
 
-TLS reverse proxy configs will be added here when the stack is containerized.
+Local reverse proxy that fronts the web (`app.localhost`) and API (`api.localhost`) containers. Adjust hostnames and TLS configuration before deploying to production.
