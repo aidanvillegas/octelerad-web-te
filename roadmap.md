@@ -20,15 +20,15 @@
 ```
 text-expander/
 +- apps/
-¦  +- web/                     # Next.js (App Router, TS)
+-  +- web/                     # Next.js (App Router, TS)
 +- services/
-¦  +- api/                     # FastAPI backend
+-  +- api/                     # FastAPI backend
 +- infra/
-¦  +- docker/                  # Dockerfiles & docker-compose
-¦  +- caddy/                   # Caddy reverse proxy + TLS
+-  +- docker/                  # Dockerfiles & docker-compose
+-  +- caddy/                   # Caddy reverse proxy + TLS
 +- docs/
-¦  +- SOPs/                    # Standard Operating Procedures
-¦  +- ADRs/                    # Architecture Decision Records
+-  +- SOPs/                    # Standard Operating Procedures
+-  +- ADRs/                    # Architecture Decision Records
 +- .github/workflows/          # CI/CD
 +- Makefile
 ```
@@ -85,10 +85,10 @@ text-expander/
 **Sprint 1 (MVP)**
 - [x] Scaffold monorepo directories (apps/web, services/api, infra, docs, workflows)
 - [x] Provide Dockerfiles and docker-compose baseline
-- [ ] Implement models & endpoints (CRUD, restore, export, import, delta sync)
-- [ ] Next.js list/search/create UI
-- [ ] CI/CD pipeline to GHCR + SSH deploy
-- [ ] Health checks + basic audit log
+- [x] Implement models & endpoints (CRUD, restore, export, import, delta sync)
+- [x] Next.js list/search/create UI
+- [x] CI/CD pipeline to GHCR + SSH deploy
+- [x] Health checks + basic audit log
 
 **Sprint 2 (Hardening)**
 - [ ] Switch to Postgres + Alembic; add FTS (tsvector + GIN)

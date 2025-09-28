@@ -19,8 +19,8 @@ services:
       dockerfile: infra/docker/api.Dockerfile
     env_file:
       - ./env/api.env
-    environment:
-      - DB_URL=${DB_URL:-postgresql+psycopg://macro:macro-pass@postgres:5432/text_expander}
+    # environment:
+    #   - DB_URL=${DB_URL:-postgresql+psycopg://macro:macro-pass@postgres:5432/text_expander}
     depends_on:
       postgres:
         condition: service_healthy

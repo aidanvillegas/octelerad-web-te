@@ -1,7 +1,7 @@
 """Pydantic schemas for request/response models."""
 
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -54,3 +54,15 @@ class DeltaQuery(BaseModel):
 
 class SnippetDelta(SnippetOut):
     """Snippet payload for delta sync responses."""
+
+
+class AuditLogOut(BaseModel):
+    id: int
+    workspace_id: int
+    user_id: Optional[int]
+    action: str
+    meta: Dict[str, Any] | None = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

@@ -8,3 +8,4 @@
 - 2025-09-26 00:00 - Added API pytest coverage, Playwright smoke test, and CI pipeline with Docker builds.
 - 2025-09-26 11:15 - Added health metrics, audit log endpoint/UI, deploy script, and Alembic scaffolding.
 - 2025-09-26 14:01 - Introduced Postgres docker stack, Alembic start script, and production deployment scaffolding.
+- 2025-09-28 14:49 - Added migration-startup-instr.md with NAS deployment guidance.

@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+
+# VS Code
+.vscode/
+
+# Local databases / artifacts
+*.db
+
+# Node
+node_modules/
+
+# macOS / Windows
+desktop.ini
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment files
+.env
+
+# Next.js
+.next/
+out/
+
+apps/web/test-results/
