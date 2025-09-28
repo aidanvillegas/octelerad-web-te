@@ -1,6 +1,18 @@
-version: "3.9"
-
 services:
+  postgres:
+    image: postgres:16-alpine
+    env_file:
+      - ./env/postgres.env
+    networks:
+      - app
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   api:
     build:
       context: ../..
@@ -8,7 +20,10 @@ services:
     env_file:
       - ./env/api.env
     environment:
-      - DB_URL=${DB_URL:-sqlite:///./dev.db}
+      - DB_URL=${DB_URL:-postgresql+psycopg://macro:macro-pass@postgres:5432/text_expander}
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "8000:8000"
     networks:
@@ -19,7 +34,7 @@ services:
       context: ../..
       dockerfile: infra/docker/web.Dockerfile
     environment:
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://api.localhost}
     ports:
       - "3000:3000"
     depends_on:
@@ -48,3 +63,4 @@ networks:
 volumes:
   caddy_data: {}
   caddy_config: {}
+  pgdata: {}
