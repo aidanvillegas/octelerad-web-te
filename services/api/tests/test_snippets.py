@@ -1,109 +1,88 @@
-"""Integration tests for snippet CRUD, import/export, and delta sync."""
+"""Integration tests for the public dataset API."""
+
+from __future__ import annotations
 
 import io
-import json
-from datetime import datetime, timedelta
 
 from fastapi.testclient import TestClient
 
+from services.api.app import models_datasets  # ensure models are imported
 
-def authenticate(client: TestClient) -> str:
-    response = client.post("/auth/magic", json={"email": "test@example.com"})
+
+def test_dataset_crud_flow(client: TestClient) -> None:
+    create_payload = {"name": "Test Dataset", "created_by_client": "test-browser", "columns": ["Column A"]}
+    response = client.post("/datasets", json=create_payload)
+    assert response.status_code == 201
+    dataset = response.json()
+    dataset_id = dataset["id"]
+
+    response = client.get("/datasets/all")
     assert response.status_code == 200
+    assert any(item["id"] == dataset_id for item in response.json()["all"])
+
+    response = client.get("/datasets/mine-local", params={"client_id": "test-browser"})
+    assert response.status_code == 200
+    assert any(item["id"] == dataset_id for item in response.json())
+
+    response = client.get(f"/datasets/{dataset_id}")
+    assert response.status_code == 200
+    assert response.json()["name"] == "Test Dataset"
+
+    response = client.get(f"/datasets/{dataset_id}/rows")
+    assert response.status_code == 200
+    assert response.json() == {"total": 0, "rows": []}
+
+    upsert_payload = {"rows": [{"Column A": ""}]}
+    response = client.post(f"/datasets/{dataset_id}/rows/upsert", json=upsert_payload)
+    assert response.status_code == 200
+    assert response.json()["created"] == 1
+
+    response = client.get(f"/datasets/{dataset_id}/rows")
     data = response.json()
-    return data.get("access_token") or data.get("dev_token")
+    assert data["total"] == 1
+    row_id = data["rows"][0]["id"]
 
-
-def test_snippet_flow(client: TestClient) -> None:
-    token = authenticate(client)
-    headers = {"Authorization": f"Bearer {token}"}
-
-    create_payload = {
-        "name": "Welcome Email",
-        "trigger": "welc",
-        "body": "Hello {{name}}",
-        "tags": ["email"],
-        "variables": {"name": ""},
-    }
-
-    create_resp = client.post("/workspaces/1/snippets", headers=headers, json=create_payload)
-    assert create_resp.status_code == 201
-    created = create_resp.json()
-    assert created["trigger"] == "welc"
-    assert created["version"] == 1
-
-    list_resp = client.get("/workspaces/1/snippets", headers=headers)
-    assert list_resp.status_code == 200
-    items = list_resp.json()
-    assert len(items) == 1
-    assert items[0]["name"] == "Welcome Email"
-
-    update_payload = {**create_payload, "body": "Updated body"}
-    update_resp = client.put(
-        f"/workspaces/1/snippets/{created['id']}", headers=headers, json=update_payload
-    )
-    assert update_resp.status_code == 200
-    updated = update_resp.json()
-    assert updated["version"] == 2
-    assert updated["body"] == "Updated body"
-
-    restore_resp = client.post(
-        f"/workspaces/1/snippets/{created['id']}/restore/1", headers=headers
-    )
-    assert restore_resp.status_code == 200
-    restored = restore_resp.json()
-    assert restored["version"] == 3
-    assert restored["body"] == "Hello {{name}}"
-
-    export_resp = client.get("/workspaces/1/export", headers=headers)
-    assert export_resp.status_code == 200
-    export_data = export_resp.json()
-    assert export_data["schema"] == "text-expander.v1"
-    assert export_data["workspace_id"] == 1
-    assert len(export_data["snippets"]) == 1
-
-    import_payload = {
-        "schema": "text-expander.v1",
-        "snippets": [
-            {
-                "name": "Follow Up",
-                "trigger": "follow",
-                "body": "Thanks again",
-                "tags": ["email"],
-                "variables": {"name": ""},
-            }
-        ],
-    }
-    file = io.BytesIO(json.dumps(import_payload).encode("utf-8"))
-    import_resp = client.post(
-        "/workspaces/1/import",
-        headers=headers,
-        files={"file": ("import.json", file, "application/json")},
-    )
-    assert import_resp.status_code == 200
-    assert import_resp.json()["imported"] == 1
-
-    list_after_import = client.get("/workspaces/1/snippets", headers=headers).json()
-    triggers = sorted(snippet["trigger"] for snippet in list_after_import)
-    assert triggers == ["follow", "welc"]
-
-    historical_ts = (datetime.utcnow() - timedelta(minutes=1)).isoformat() + "Z"
-    delta_resp = client.get(
-        f"/workspaces/1/snippets/since?since_ts={historical_ts}", headers=headers
-    )
-    assert delta_resp.status_code == 200
-    delta_items = delta_resp.json()
-    assert len(delta_items) == 2
-
-    audit_resp = client.get("/workspaces/1/audit", headers=headers)
-    assert audit_resp.status_code == 200
-    actions = {entry["action"] for entry in audit_resp.json()}
-    expected_actions = {"create_snippet", "update_snippet", "restore_version", "export", "import"}
-    assert expected_actions.issubset(actions)
-
-
-def test_metrics_endpoint(client: TestClient) -> None:
-    response = client.get("/metrics")
+    patch_payload = {"id": row_id, "key": "Column A", "value": "Updated"}
+    response = client.post(f"/datasets/{dataset_id}/rows/patch", json=patch_payload)
     assert response.status_code == 200
-    body = response.text
-    assert "macro_http_requests_total" in body
+    response = client.get(f"/datasets/{dataset_id}/rows")
+    assert response.json()["rows"][0]["Column A"] == "Updated"
+
+    response = client.post(f"/datasets/{dataset_id}/columns/add", json={"key": "Column B"})
+    assert response.status_code == 200
+    response = client.get(f"/datasets/{dataset_id}")
+    assert any(col["key"] == "Column B" for col in response.json()["schema"]["columns"])
+
+    response = client.delete(f"/datasets/{dataset_id}/rows", params={"ids": row_id})
+    assert response.status_code == 200
+    assert response.json()["deleted"] == 1
+
+    response = client.get(f"/datasets/{dataset_id}/export", params={"fmt": "json"})
+    assert response.status_code == 200
+    export_payload = response.json()
+    assert export_payload["filename"].endswith(".json")
+
+
+def test_import_csv(client: TestClient) -> None:
+    create = client.post("/datasets", json={"name": "Import", "created_by_client": None, "columns": ["Column A", "Column B"]})
+    assert create.status_code == 201
+    dataset_id = create.json()["id"]
+
+    csv_content = """Column A,Column B
+1,2
+3,4
+"""
+    files = {"file": ("data.csv", io.BytesIO(csv_content.encode("utf-8")), "text/csv")}
+    response = client.post(f"/datasets/{dataset_id}/import", files=files)
+    assert response.status_code == 200
+    assert response.json()["rows_added"] == 2
+
+    response = client.get(f"/datasets/{dataset_id}/rows")
+    data = response.json()
+    assert data["total"] == 2
+    assert any(row["Column A"] == "1" for row in data["rows"])
+
+    response = client.get(f"/datasets/{dataset_id}/export", params={"fmt": "csv"})
+    assert response.status_code == 200
+    export_payload = response.json()
+    assert export_payload["filename"].endswith(".csv")

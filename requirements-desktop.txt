@@ -1,0 +1,6 @@
+# Optional desktop app dependencies (PyQt + pandas + utilities)
+pandas>=2.0
+PyQt5>=5.15
+keyboard>=0.13
+pyperclip>=1.8
+pyautogui>=0.9

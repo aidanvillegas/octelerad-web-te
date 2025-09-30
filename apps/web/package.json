@@ -1,29 +1,36 @@
 {
-    "name":  "macro-library-web",
-    "version":  "0.1.0",
-    "private":  true,
-    "description":  "Web UI for the Macro Library platform (Next.js App Router).",
-    "scripts":  {
-                    "dev":  "next dev",
-                    "build":  "next build",
-                    "start":  "next start",
-                    "lint":  "next lint",
-                    "test":  "playwright test",
-                    "test:headed":  "playwright test --headed",
-                    "test:ui":  "playwright test --ui"
-                },
-    "dependencies":  {
-                         "next":  "^14.2.33",
-                         "react":  "18.3.1",
-                         "react-dom":  "18.3.1"
-                     },
-    "devDependencies":  {
-                            "@playwright/test":  "^1.55.1",
-                            "@types/node":  "20.14.2",
-                            "@types/react":  "18.3.3",
-                            "@types/react-dom":  "18.3.1",
-                            "eslint":  "^8.57.0",
-                            "eslint-config-next":  "^15.5.4",
-                            "typescript":  "5.5.4"
-                        }
+  "name": "macro-library-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Web UI for the Macro Library platform (Next.js App Router).",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui"
+  },
+  "dependencies": {
+    "axios": "1.7.2",
+    "next": "14.2.5",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "ag-grid-community": "32.3.3",
+    "ag-grid-react": "32.3.3",
+    "clsx": "2.1.0",
+    "react-hot-toast": "2.4.1",
+    "papaparse": "5.4.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.1",
+    "@types/node": "20.14.2",
+    "@types/papaparse": "5.3.16",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.1",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^15.5.4",
+    "typescript": "5.5.4"
+  }
 }

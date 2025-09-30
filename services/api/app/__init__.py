@@ -1,5 +1,5 @@
-"""Macro Library API package."""
+"""Public datasets API package."""
 
-__all__ = ["create_app", "app"]
+__all__ = ['app']
 
-from .main import create_app, app
+from .main import app
