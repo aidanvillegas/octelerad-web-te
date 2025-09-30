@@ -97,7 +97,7 @@ class AuditLog(Base):
     __tablename__ = "audit_logs"
 
     id = Column(Integer, primary_key=True)
-    workspace_id = Column(Integer, ForeignKey("workspaces.id"), nullable=False)
+    workspace_id = Column(Integer, ForeignKey("workspaces.id"), nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     action = Column(String, nullable=False)
     meta = Column(JSON, nullable=True)
@@ -113,3 +113,11 @@ class ApiKey(Base):
     token_hash = Column(String, nullable=False)
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
+
+
+from .database import engine
+
+# Ensure dataset models are imported so metadata includes them
+from .models_datasets import Dataset, DatasetRow, DatasetPermission  # noqa: F401
+
+Base.metadata.create_all(bind=engine)

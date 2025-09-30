@@ -9,3 +9,16 @@
 - 2025-09-26 11:15 - Added health metrics, audit log endpoint/UI, deploy script, and Alembic scaffolding.
 - 2025-09-26 14:01 - Introduced Postgres docker stack, Alembic start script, and production deployment scaffolding.
 - 2025-09-28 14:49 - Added migration-startup-instr.md with NAS deployment guidance.
+- 2025-09-29 11:17 - Implemented NextAuth (Google) auth flow, backend JWT exchange, dataset models/routes, and AG Grid UI scaffolding.
+- 2025-09-29 12:15 - Replaced NextAuth middleware matcher with custom wrapper to skip /api/auth and avoid Next.js build failure.
+- 2025-09-29 12:45 - Re-saved Next.js files and package.json in UTF-8 to resolve build errors; middleware now wraps NextAuth with safe matcher.
+- 2025-09-29 13:11 - Paused Google/ownership auth work; current build runs datasets in open-access mode (any visitor can create/access saved datasets).
+- 2025-09-29 21:45 - Confirmed docker compose build/test pipeline, kept datasets UI in open-access mode with backend JWT fallback, and refreshed Playwright smoke test for the datasets flow.
+  - Regression checklist: docker compose up --build; npm run build (apps/web); npm test; .venv/bin/python -m pytest services/api/tests
+- 2025-09-29 23:05 - Pivoted datasets feature set to anonymous realtime mode: public FastAPI endpoints with WebSocket fan-out, axios-based client with browser clientId, and updated Playwright coverage for the new flows.
+- 2025-09-29 23:17 - Documented npm build/test usage from repo root (use apps/web prefix) per runtime check; pytest already passing.
+- 2025-09-29 22:57 - Ran full validation suite: pytest (services/api/tests), npm run build & npm test in apps/web, docker compose up --build smoke (followed by down).
+- 2025-09-29 23:06 - Stabilized Playwright smoke test with WebSocket/fetch mocks (no post-route evaluate) to stop intermittent terminations; npm test now green.
+- 2025-09-30 00:09 - Rebuilt datasets dashboard UI: new create/import cards with dropzone + previews, toast feedback, utility components, and refreshed Playwright + build/test passes.
+- 2025-09-30 01:47 - Fixed dashboard create/import failures with API health banner, resilient axios hooks, and realtime websocket hook; tightened FastAPI dataset endpoints (201 create, size guard).
+- 2025-09-30 02:35 - Refreshed public datasets dashboard (create/import, API banner) and hardened FastAPI dataset create/audit logging.
